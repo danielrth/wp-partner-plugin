@@ -53,12 +53,23 @@ function apply_partner_options() {
   for ($i = 0; $i < count($posts); $i++) {
     
     $postContent = $posts[$i]->post_content;
-    $idPos = strpos($postContent, ELEID_ABOUT_US);
-    $repStart = strpos($postContent, '>', $idPos) + 1;
-    $repEnd = strpos($postContent, '</span>', $idPos);
+    $eleCount = substr_count($postContent, ELEID_ABOUT_US);
 
-    if ( substr($postContent, $repStart, $repEnd - $repStart) != $_POST['data']['about_us'] ) {
-      $newString = substr_replace($postContent, $_POST['data']['about_us'], $repStart, $repEnd - $repStart);
+    $newString = $postContent;
+    $newPos = 0;
+
+    for ($eleNo=0; $eleNo < $eleCount; $eleNo++) { 
+      $idPos = strpos($newString, ELEID_ABOUT_US, $newPos);
+      $repStart = strpos($newString, '>', $idPos) + 1;
+      $repEnd = strpos($newString, '</span>', $idPos);
+      $newPos = $repEnd;
+
+      if ( substr($newString, $repStart, $repEnd - $repStart) != $_POST['data']['about_us'] )
+        $newString = substr_replace($newString, $_POST['data']['about_us'], $repStart, $repEnd - $repStart);
+    }
+    
+
+    if ( $newString != $postContent ) {
       if ( $wpdb->update(
         $tableName,
         array( 'post_content' => $newString ),
@@ -72,13 +83,14 @@ function apply_partner_options() {
   }
 
   //---------------footer-----------------
-  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%itm-ptn-cst-footer%' AND post_status='publish'";
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%"
+    . ELEID_FOOTER . "%' AND post_status='publish'";
   $posts = $wpdb->get_results($query);
 
   for ($i = 0; $i < count($posts); $i++) {
     
     $postContent = $posts[$i]->post_content;
-    $idPos = strpos($postContent, 'itm-ptn-cst-footer');
+    $idPos = strpos( $postContent, ELEID_FOOTER );
     $repStart = strpos($postContent, '>', $idPos) + 1;
     $repEnd = strpos($postContent, '</span>', $idPos);
     $strFooter = "<em><small>" . $_POST['data']['footer'] . "</small></em>";
