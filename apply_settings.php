@@ -2,7 +2,101 @@
 add_action( 'wp_ajax_apply_partner_options', 'apply_partner_options' );
 
 function apply_partner_options() {
-  var_dump($_POST['data']);
+
+  define("ELEID_CITIES_HEADLINE", "itm-ptn-cst-cities-headline");
+  define("ELEID_ABOUT_US", "itm-ptn-cst-about-us");
+  define("ELEID_FOOTER", "itm-ptn-cst-footer");
+  define("ELEID_PHONE", "itm-ptn-cst-phone");
+  define("ELEID_CALLCENTER_HOUR", "itm-ptn-cst-callcenter-hour");
+  define("ELEID_SATISFACTION", "itm-ptn-cst-satisfaction");
+
+  global $wpdb;
+
+  $tableName = $_POST['data']['table_prefix'] . 'posts';
+
+  if ( !$wpdb->query("SELECT 1 FROM {$tableName} LIMIT 1") ) {
+      wp_die("Table Not Exist!");
+  }
+
+  //---------------cities headline-----------------
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%" 
+    . ELEID_CITIES_HEADLINE . "%' AND post_status='publish'";
+  $posts = $wpdb->get_results($query);
+
+  for ($i = 0; $i < count($posts); $i++) {
+
+    $postContent = $posts[$i]->post_content;
+    $idPos = strpos( $postContent, ELEID_CITIES_HEADLINE );
+    $repStart = strpos($postContent, '>', $idPos) + 1;
+    $repEnd = strpos($postContent, '<', $idPos);
+
+    if ( substr($postContent, $repStart, $repEnd - $repStart) != $_POST['data']['cities_headline'] ) {
+      $newString = substr_replace($postContent, $_POST['data']['cities_headline'], $repStart, $repEnd - $repStart);
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $newString ),
+        array( 'ID' => $posts[$i]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "City headline changed.\n";
+    }
+    
+  }
+
+  //---------------about us-----------------
+  //should replace all appearances
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%" . 
+    ELEID_ABOUT_US . "%' AND post_status='publish'";
+  $posts = $wpdb->get_results($query);
+
+  for ($i = 0; $i < count($posts); $i++) {
+    
+    $postContent = $posts[$i]->post_content;
+    $idPos = strpos($postContent, ELEID_ABOUT_US);
+    $repStart = strpos($postContent, '>', $idPos) + 1;
+    $repEnd = strpos($postContent, '</span>', $idPos);
+
+    if ( substr($postContent, $repStart, $repEnd - $repStart) != $_POST['data']['about_us'] ) {
+      $newString = substr_replace($postContent, $_POST['data']['about_us'], $repStart, $repEnd - $repStart);
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $newString ),
+        array( 'ID' => $posts[$i]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "AboutUs changed.\n";
+    }
+    
+  }
+
+  //---------------footer-----------------
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%itm-ptn-cst-footer%' AND post_status='publish'";
+  $posts = $wpdb->get_results($query);
+
+  for ($i = 0; $i < count($posts); $i++) {
+    
+    $postContent = $posts[$i]->post_content;
+    $idPos = strpos($postContent, 'itm-ptn-cst-footer');
+    $repStart = strpos($postContent, '>', $idPos) + 1;
+    $repEnd = strpos($postContent, '</span>', $idPos);
+    $strFooter = "<em><small>" . $_POST['data']['footer'] . "</small></em>";
+
+    if ( substr($postContent, $repStart, $repEnd - $repStart) != $strFooter ) {
+      $newString = substr_replace($postContent, $strFooter, $repStart, $repEnd - $repStart);
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $newString ),
+        array( 'ID' => $posts[$i]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "Footer changed.\n";
+    }
+    
+  }
+
   wp_die();
 }
 ?>
