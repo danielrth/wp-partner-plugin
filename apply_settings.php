@@ -7,7 +7,7 @@ function apply_partner_options() {
   define("ELEID_ABOUT_US", "itm-ptn-cst-about-us");
   define("ELEID_FOOTER", "itm-ptn-cst-footer");
   define("ELEID_PHONE", "itm-ptn-cst-phone");
-  define("ELEID_CALLCENTER_HOUR", "itm-ptn-cst-callcenter-hour");
+  define("ELEID_CALLCENTER_HOURS", "itm-ptn-cst-callcenter_hour");
   define("ELEID_SATISFACTION", "itm-ptn-cst-satisfaction");
 
   global $wpdb;
@@ -142,6 +142,43 @@ function apply_partner_options() {
         array( '%d' )
       ) > 0 )
         echo "Phone changed.\n";
+    }
+    
+  }
+
+  //---------------callcenter hour-----------------
+  //should replace all appearances
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%" . 
+    ELEID_CALLCENTER_HOURS . "%' AND post_status='publish'";
+  $posts = $wpdb->get_results($query);
+
+  for ($i = 0; $i < count($posts); $i++) {
+    
+    $postContent = $posts[$i]->post_content;
+    $eleCount = substr_count($postContent, ELEID_CALLCENTER_HOURS);
+
+    $newString = $postContent;
+    $newPos = 0;
+
+    for ($eleNo=0; $eleNo < $eleCount; $eleNo++) { 
+      $idPos = strpos($newString, ELEID_CALLCENTER_HOURS, $newPos);
+      $repStart = strpos($newString, '>', $idPos) + 1;
+      $repEnd = strpos($newString, '</span>', $idPos);
+      $newPos = $repEnd;
+
+      if ( substr($newString, $repStart, $repEnd - $repStart) != $_POST['data']['callcenter_hours'] )
+        $newString = substr_replace($newString, $_POST['data']['callcenter_hours'], $repStart, $repEnd - $repStart);
+    }
+    
+    if ( $newString != $postContent ) {
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $newString ),
+        array( 'ID' => $posts[$i]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "Call center hours changed.\n";
     }
     
   }

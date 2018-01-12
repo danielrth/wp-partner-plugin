@@ -86,6 +86,14 @@ function partner_custom_options_page() {
         </tr>
 
         <tr>
+          <th>Call center hours</th>
+          <td>
+            <input type="text" id="partner-txt-callcenter-hours" readonly  size="50">
+          </td>
+          </td>
+        </tr>
+
+        <tr>
           <th>Satisfaction</th>
           <td>
             <input type="checkbox" id="partner-chk-satis" name="map_option_5" />
@@ -118,6 +126,7 @@ function partner_custom_options_page() {
         jQuery('#partner-txt-aboutus').val(partners[key]['about_us']);
         jQuery('#partner-txt-footer').val(partners[key]['footer']);
         jQuery('#partner-txt-phone').val(partners[key]['phone']);
+        jQuery('#partner-txt-callcenter-hours').val(partners[key]['callcenter_hours']);
         jQuery('#partner-chk-satis').prop( 'checked', partners[key]['satisfaction'] == 1 ? true : false );
       });
 
@@ -137,6 +146,7 @@ function partner_custom_options_page() {
             about_us:         partners[key]['about_us'],
             footer:           partners[key]['footer'],
             phone:            partners[key]['phone'],
+            callcenter_hours: partners[key]['callcenter_hours'],
             satisfaction:     partners[key]['satisfaction'],
           },
         };
