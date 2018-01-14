@@ -9,6 +9,7 @@ function apply_partner_options() {
   define("ELEID_PHONE", "itm-ptn-cst-phone");
   define("ELEID_CALLCENTER_HOURS", "itm-ptn-cst-callcenter_hour");
   define("ELEID_SATISFACTION", "itm-ptn-cst-satisfaction");
+  define("HDNID_SATISFACTION", "hdn-ptn-cst-satisfaction");
 
   global $wpdb;
 
@@ -183,6 +184,30 @@ function apply_partner_options() {
     
   }
 
+  //-----------------satisfaction-----------------
+  if ( $_POST['data']['satisfaction'] != 1 ) {
+    $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%" . 
+      ELEID_SATISFACTION . "%' AND post_status='publish'";
+    $posts = $wpdb->get_results($query);
+
+    for ($i = 0; $i < count($posts); $i++) {
+      
+      $postContent = $posts[$i]->post_content;
+      if ($i == 0)
+      $newString = str_replace(ELEID_SATISFACTION, HDNID_SATISFACTION, $postContent);
+
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $newString ),
+        array( 'ID' => $posts[$i]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "Satisfaction changed.\n";
+    }
+  }
+
   wp_die();
 }
+
 ?>
