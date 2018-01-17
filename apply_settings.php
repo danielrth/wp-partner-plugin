@@ -207,6 +207,43 @@ function apply_partner_options() {
     }
   }
 
+  //------------------writing------------------
+
+  //------------------fix links in home page------------------
+  $siteURL = "http://localhost/";
+  $newSiteURL = "http://localhost/baylor/";
+  $ageGroupNames = [
+    '4k', '1st-graders', '1st-graders', '2nd-graders', '3rd-graders', '4th-graders', '5th-graders', '6th-8th-graders', '9th-11th-graders', '12th-graders-college-adults',
+  ];
+
+  $query = "SELECT * FROM {$tableName} WHERE post_content LIKE '%".
+    $siteURL."%' AND post_status='publish' AND post_title='Home Page'";
+  $posts = $wpdb->get_results($query);
+  if ( count($posts) > 0 ) {
+    $postContent = $posts[0]->post_content;
+    $newContent = $postContent;
+
+    for ($i = 0; $i < count($ageGroupNames); $i++) {
+      $oldPageLink = $siteURL . $ageGroupNames[$i];
+      $newPageLink = $newSiteURL . $ageGroupNames[$i];
+
+      $newContent = str_replace($oldPageLink, $newPageLink, $newContent);
+    }
+
+    echo $postContent;
+    if ($newContent != $postContent) {
+      if ( $wpdb->update(
+        $tableName,
+        array( 'post_content' => $postContent ),
+        array( 'ID' => $posts[0]->ID ),
+        array( '%s' ),
+        array( '%d' )
+      ) > 0 )
+        echo "Button urls changed.\n";  
+    }
+    
+  }
+
   wp_die();
 }
 

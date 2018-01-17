@@ -96,7 +96,14 @@ function partner_custom_options_page() {
         <tr>
           <th>Satisfaction</th>
           <td>
-            <input type="checkbox" id="partner-chk-satis" name="map_option_5" />
+            <input type="checkbox" id="partner-chk-satis" />
+          </td>
+        </tr>
+
+        <tr>
+          <th>Writing</th>
+          <td>
+            <input type="checkbox" id="partner-chk-writing" />
           </td>
         </tr>
 
@@ -128,6 +135,7 @@ function partner_custom_options_page() {
         jQuery('#partner-txt-phone').val(partners[key]['phone']);
         jQuery('#partner-txt-callcenter-hours').val(partners[key]['callcenter_hours']);
         jQuery('#partner-chk-satis').prop( 'checked', partners[key]['satisfaction'] == 1 ? true : false );
+        jQuery('#partner-chk-writing').prop( 'checked', partners[key]['writing'] == 1 ? true : false );
       });
 
       jQuery('#partner-btnsubmit').on('click', function() {
@@ -148,6 +156,7 @@ function partner_custom_options_page() {
             phone:            partners[key]['phone'],
             callcenter_hours: partners[key]['callcenter_hours'],
             satisfaction:     partners[key]['satisfaction'],
+            writing:          partners[key]['writing'],
           },
         };
 
